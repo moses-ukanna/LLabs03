@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Llabs03 — Linux Sandbox</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- Mode switcher — far left vertical toolbar -->
+  <nav class="mode-rail">
+    <div class="rail-logo">L<span>03</span></div>
+
+    <div class="rail-divider"></div>
+
+    <!-- Layout mode buttons -->
+    <div class="mode-btn layout-btn active" data-mode="terminal" title="Terminal only">
+      <span class="mode-icon">⬛</span>
+      <span class="mode-label">TERM</span>
+    </div>
+    <div class="mode-btn layout-btn" data-mode="explorer" title="Filesystem explorer">
+      <span class="mode-icon">📁</span>
+      <span class="mode-label">FILES</span>
+    </div>
+    <div class="mode-btn layout-btn" data-mode="reference" title="Command reference">
+      <span class="mode-icon">📖</span>
+      <span class="mode-label">REF</span>
+    </div>
+    <div class="mode-btn layout-btn" data-mode="split" title="Split view">
+      <span class="mode-icon">▦</span>
+      <span class="mode-label">SPLIT</span>
+    </div>
+
+    <!-- KERN toggle -->
+    <div class="mode-btn" id="btn-glio" title="KERN — Linux &amp; IT assistant">
+      <span class="mode-icon">✦</span>
+      <span class="mode-label">KERN</span>
+    </div>
+
+    <div class="rail-divider"></div>
+
+    <!-- Theme buttons -->
+    <div class="mode-btn theme-btn active" data-theme="dark" title="Dark">
+      <span class="mode-icon">🌑</span>
+      <span class="mode-label">DARK</span>
+    </div>
+    <div class="mode-btn theme-btn" data-theme="light" title="Light">
+      <span class="mode-icon">☀️</span>
+      <span class="mode-label">LITE</span>
+    </div>
+    <div class="mode-btn theme-btn" data-theme="skyblue" title="Sky">
+      <span class="mode-icon">💠</span>
+      <span class="mode-label">SKY</span>
+    </div>
+
+    <div class="mode-rail-spacer"></div>
+
+    <div class="mode-btn danger" id="btn-reset" title="Reset filesystem">
+      <span class="mode-icon">⟳</span>
+      <span class="mode-label">RST</span>
+    </div>
+    <div class="mode-btn" id="btn-clear" title="Clear terminal">
+      <span class="mode-icon">✕</span>
+      <span class="mode-label">CLR</span>
+    </div>
+    <div class="rail-clock" id="rail-clock"></div>
+    <div class="rail-cmd-count" id="rail-cmd-count">0 CMD</div>
+  </nav>
+
+  <!-- App shell -->
+  <div class="app">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">LLABS<span>03</span></div>
+
+      <div class="session-bar">
+        <div class="session-item">
+          <span class="session-label">USER</span>
+          <span class="session-value">user@llabs03</span>
+        </div>
+        <div class="session-divider"></div>
+        <div class="session-item">
+          <span class="session-label">KERNEL</span>
+          <span class="session-value">5.15.0-llabs03</span>
+        </div>
+        <div class="session-divider"></div>
+        <div class="session-item">
+          <span class="session-label">CWD</span>
+          <span class="session-value" id="hdr-cwd">~</span>
+        </div>
+        <div class="session-divider"></div>
+        <div class="session-item">
+          <span class="session-label">THEME</span>
+          <span class="session-value" id="hdr-theme">DARK</span>
+        </div>
+        <div class="session-divider"></div>
+        <div class="session-item">
+          <span class="session-label">SESSION</span>
+          <span class="session-value"><span class="status-dot"></span>LIVE</span>
+        </div>
+      </div>
+
+      <div class="header-mode-label" id="hdr-mode">TERMINAL</div>
+    </header>
+
+    <!-- Main content area -->
+    <div class="main" id="main">
+
+      <!-- Sidebar (explorer / reference) -->
+      <aside class="sidebar" id="sidebar"></aside>
+
+      <!-- Terminal -->
+      <div class="terminal-area">
+        <div class="terminal-output" id="output"></div>
+        <div class="input-area" id="input-area">
+          <div class="input-resize-handle" id="input-resize-handle"></div>
+          <span class="input-size-badge" id="input-size-badge"></span>
+          <div class="input-row">
+            <div class="prompt" id="prompt"></div>
+            <textarea
+              id="input" class="terminal-input" rows="1"
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            ></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- KERN panel -->
+      <div class="glio-panel" id="glio-panel">
+        <div class="glio-chat" id="glio-chat">
+          <div class="glio-header">
+            <div class="glio-avatar">⬡</div>
+            <div>
+              <div class="glio-title">KERN <span>1.0</span></div>
+              <div class="glio-subtitle">Linux &amp; IT assistant</div>
+            </div>
+            <button class="glio-clear-btn" id="glio-clear-btn" title="Clear chat">✕</button>
+          </div>
+          <div class="glio-messages" id="glio-messages"></div>
+          <div class="glio-typing" id="glio-typing" style="display:none;">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="glio-input-row">
+            <textarea
+              id="glio-input"
+              class="glio-input"
+              placeholder="Ask KERN…"
+              rows="1"
+              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            ></textarea>
+            <button class="glio-send-btn" id="glio-send-btn" title="Send">↑</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Split panel -->
+      <div class="split-panel" id="split-panel">
+        <div class="split-panel-header">
+          <span>// Filesystem</span>
+          <span id="split-cwd-label" class="split-cwd"></span>
+        </div>
+        <div id="split-tree" class="fs-tree"></div>
+        <div class="split-panel-header" style="margin-top:14px;">// Command Ref</div>
+        <div class="split-ref" id="split-ref"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/filesystem.js"></script>
+  <script src="js/commands.js"></script>
+  <script src="js/terminal.js"></script>
+  <script src="js/kern.js"></script>
+</body>
+</html>
