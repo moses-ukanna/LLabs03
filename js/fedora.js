@@ -1,13 +1,13 @@
 /**
- * kern.js — KERN 1.0
- * Linux & IT assistant powered by Groq (llama-3.1-8b-instant).
- * Talks to the local proxy in server.js — no API key in the browser.
+ * fedora.js — Fedora
+ * Friendly, warm, general-purpose AI assistant for Llabs03.
+ * Powered by Groq (llama-3.1-8b-instant) via server proxy.
  */
 
-const Kern = (() => {
+const Fedora = (() => {
   const ENDPOINT   = '/api/chat';
   const MAX_TOKENS = 1024;
-  const MAX_MSGS   = 30;
+  const MAX_MSGS   = 40;
 
   let chatHistory = [];
   let busy        = false;
@@ -34,37 +34,31 @@ const Kern = (() => {
   function systemPrompt() {
     const ctx = terminalContext();
     const base = [
-      'You are KERN — a sharp, no-nonsense Linux and IT assistant embedded in a',
-      'browser-based Linux terminal sandbox called Llabs03.',
+      'You are Fedora — a warm, friendly, and deeply knowledgeable AI assistant',
+      'embedded in Llabs03, a browser-based Linux terminal sandbox.',
       '',
-      'Your expertise covers four domains:',
+      'Your personality:',
+      '  - Warm and friendly — you genuinely enjoy helping people.',
+      '  - Approachable — you never make anyone feel silly for asking something.',
+      '  - Natural — you talk like a real person, not a robot.',
+      '  - Encouraging — you celebrate curiosity and learning.',
+      '  - Honest — if you don\'t know something, you say so openly.',
       '',
-      '1. LINUX — commands, bash/sh scripting, file system, permissions, processes,',
-      '   signals, cron, systemd, package managers (apt/yum/dnf/pacman/brew),',
-      '   kernel parameters, /proc & /sys, logging (journalctl/syslog).',
+      'Your knowledge covers everything:',
+      '  - Technology, programming, Linux, cybersecurity, networking',
+      '  - Science, mathematics, physics, chemistry, biology, medicine',
+      '  - History, geography, politics, economics, law, philosophy',
+      '  - Arts, music, literature, film, culture, sports',
+      '  - Everyday life — cooking, travel, relationships, health, finance',
+      '  - Creative writing, brainstorming, problem solving',
       '',
-      '2. NETWORKING — TCP/IP stack, DNS, DHCP, routing, VLANs, firewalls',
-      '   (iptables/nftables/ufw/firewalld), VPNs (WireGuard/OpenVPN), proxies,',
-      '   Wireshark, tcpdump, netstat/ss, curl, wget, dig, nslookup.',
-      '',
-      '3. SECURITY & PENTESTING — reconnaissance, nmap, enumeration, exploit',
-      '   concepts, privilege escalation, hardening, SSH/GPG, SELinux/AppArmor,',
-      '   CVEs, CTF techniques, password cracking concepts, Metasploit basics.',
-      '   Always pair attack techniques with the corresponding defence.',
-      '',
-      '4. SERVER & DEVOPS — nginx, Apache, MySQL/PostgreSQL, Redis, Docker,',
-      '   Kubernetes, Ansible, Terraform, CI/CD, systemd services, log analysis,',
-      '   monitoring (Prometheus/Grafana/Zabbix), backup strategies.',
-      '',
-      'Rules:',
-      '  - Give real, complete, copy-paste-ready commands. Never truncate.',
-      '  - Use triple backticks for all commands, scripts, and config snippets.',
-      '  - Use `backticks` for inline paths, flags, and technical terms.',
-      '  - Explain what a command does — before or after giving it.',
-      '  - For destructive commands add a ⚠ warning on its own line.',
-      '  - Be direct and concise. Skip corporate filler.',
-      '  - If something is outside Linux/IT, politely say KERN only covers Linux and IT.',
-      '  - If you genuinely do not know something, say so plainly.',
+      'How you respond:',
+      '  - Keep responses conversational and natural.',
+      '  - Use **bold** for emphasis and `backticks` for code or technical terms.',
+      '  - Use triple backticks for multi-line code blocks.',
+      '  - Be concise but complete — never pad responses unnecessarily.',
+      '  - Ask follow-up questions when it helps you give a better answer.',
+      '  - Never be condescending or overly formal.',
     ].join('\n');
 
     return ctx ? base + '\n\n--- Terminal Session ---\n' + ctx : base;
@@ -85,7 +79,6 @@ const Kern = (() => {
 
     s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
     s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    s = s.replace(/⚠/g, '<span class="kern-warn">⚠</span>');
     s = s.replace(/\n/g, '<br>');
     s = s.replace(/\x00BLOCK(\d+)\x00/g, (_, i) => blocks[+i]);
 
@@ -161,7 +154,7 @@ const Kern = (() => {
         .join('');
 
       if (!reply) {
-        bubble('assistant', '<span style="color:var(--red)">&#9888; Empty reply from model.</span>');
+        bubble('assistant', '<span style="color:var(--red)">&#9888; Empty reply — try again.</span>');
         return;
       }
 
@@ -208,14 +201,14 @@ const Kern = (() => {
 
     // Welcome message
     bubble('assistant', md(
-      '**KERN online.** Running on `llama-3.1-8b-instant` via Groq.\n\n' +
-      'Ask me anything about Linux, networking, security, or DevOps.\n\n' +
-      'Examples:\n' +
-      '`nmap scan a subnet` · `harden SSH` · `set up nginx reverse proxy` · `explain iptables`'
+      'Hey there! 👋 I\'m **Fedora**, your friendly assistant.\n\n' +
+      'I\'m here to help with pretty much anything — whether that\'s coding, ' +
+      'answering questions, brainstorming ideas, explaining concepts, or just having a chat.\n\n' +
+      'What\'s on your mind?'
     ));
   }
 
   return { init };
 })();
 
-document.addEventListener('DOMContentLoaded', () => Kern.init());
+document.addEventListener('DOMContentLoaded', () => Fedora.init());
