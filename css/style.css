@@ -11,7 +11,7 @@
   --mono: 'Geist Mono', monospace;
   --sans: 'Geist', sans-serif;
   --topbar-h: 52px;
-  --drawer-w: 260px;
+  --rail-w: 56px;
   --chat-w: 340px;
   --radius: 10px;
   --radius-sm: 6px;
@@ -116,8 +116,8 @@ html, body {
   border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  gap: 12px;
+  padding: 0 20px;
+  gap: 16px;
   z-index: 100;
   transition: background var(--transition), border-color var(--transition);
 }
@@ -184,130 +184,90 @@ html, body {
 }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-/* ── Drawer Overlay ────────────────────────────────────────── */
-.drawer-overlay {
-  position: fixed;
-  inset: 0;
-  background: var(--overlay);
-  z-index: 200;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--transition);
-}
-.drawer-overlay.visible {
-  opacity: 1;
-  pointer-events: auto;
-}
 
-/* ── Drawer ────────────────────────────────────────────────── */
-.drawer {
-  position: fixed;
-  top: 0; left: 0; bottom: 0;
-  width: var(--drawer-w);
+/* ── Icon Rail ─────────────────────────────────────────────── */
+.icon-rail {
+  width: var(--rail-w);
+  flex-shrink: 0;
   background: var(--surface);
   border-right: 1px solid var(--border);
-  z-index: 300;
   display: flex;
   flex-direction: column;
-  transform: translateX(-100%);
-  transition: transform var(--transition), background var(--transition);
-  box-shadow: var(--shadow);
-}
-.drawer.open { transform: translateX(0); }
-
-.drawer-header {
-  height: var(--topbar-h);
-  display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-}
-.drawer-title {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--text-3);
+  padding: 12px 0 14px;
+  gap: 4px;
+  z-index: 10;
+  transition: background var(--transition), border-color var(--transition);
 }
 
-.drawer-section {
-  padding: 20px 12px 8px;
-}
-.drawer-section-label {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--text-3);
+.rail-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
   padding: 0 8px;
-  margin-bottom: 6px;
 }
 
-.drawer-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 500;
-  transition: background var(--transition), color var(--transition);
-  user-select: none;
-}
-.drawer-nav-item:hover { background: var(--accent-dim); color: var(--text); }
-.drawer-nav-item.active { background: var(--accent-dim); color: var(--text); }
-.drawer-nav-item svg { flex-shrink: 0; opacity: 0.7; }
-.drawer-nav-item.active svg { opacity: 1; }
-
-.drawer-divider {
+.rail-divider {
+  width: 28px;
   height: 1px;
   background: var(--border);
-  margin: 8px 12px;
+  margin: 6px 0;
+  flex-shrink: 0;
 }
 
-.drawer-footer {
-  margin-top: auto;
-  padding: 12px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
+.rail-spacer { flex: 1; }
 
-.drawer-footer-item {
+.rail-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: var(--text-3);
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  color: var(--text-2);
-  font-size: 13px;
-  font-weight: 500;
+  justify-content: center;
   transition: background var(--transition), color var(--transition);
-  user-select: none;
+  flex-shrink: 0;
+  position: relative;
 }
-.drawer-footer-item:hover { background: var(--accent-dim); color: var(--text); }
-.drawer-footer-item.danger:hover { background: rgba(248,113,113,0.08); color: var(--red); }
-.drawer-footer-item svg { flex-shrink: 0; opacity: 0.7; }
+.rail-btn:hover {
+  background: var(--accent-dim);
+  color: var(--text);
+}
+.rail-btn.active {
+  background: var(--pill-active-bg);
+  color: var(--pill-active-fg);
+}
+.rail-btn.danger:hover {
+  background: rgba(248,113,113,0.08);
+  color: var(--red);
+}
+.rail-btn svg { flex-shrink: 0; }
 
-/* Clock and CMD in drawer footer */
-.drawer-clock {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text-3);
-  padding: 6px 12px 4px;
-  letter-spacing: 0.06em;
+/* Fedora bar-F button */
+.fedora-btn { color: var(--text-3); }
+.fedora-btn:hover,
+.fedora-btn.active { background: var(--pill-active-bg); color: var(--pill-active-fg); }
+.fedora-btn .fedora-icon rect { transition: fill var(--transition); }
+
+/* Pill accent vars */
+[data-theme="dark"] {
+  --pill-active-bg: rgba(129,140,248,0.16);
+  --pill-active-fg: #a5b4fc;
+}
+[data-theme="light"] {
+  --pill-active-bg: rgba(79,70,229,0.10);
+  --pill-active-fg: #4f46e5;
 }
 
 /* ── Main Layout ───────────────────────────────────────────── */
 .app {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
   padding-top: var(--topbar-h);
 }

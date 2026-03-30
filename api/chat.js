@@ -34,11 +34,20 @@ export default async function handler(req, res) {
       }),
     });
 
-    const data = await upstream.json();
+    // Read as text first — .json() throws on empty or non-JSON body
+    const raw = await upstream.text();
+    let data;
+    try {
+      data = raw ? JSON.parse(raw) : {};
+    } catch {
+      console.error('[chat] Non-JSON from Groq:', raw.slice(0, 200));
+      return res.status(502).json({ error: { message: 'Non-JSON response from Groq API' } });
+    }
 
     if (!upstream.ok) {
+      console.error('[chat] Groq ' + upstream.status + ':', JSON.stringify(data));
       return res.status(upstream.status).json({
-        error: { message: (data.error && data.error.message) || 'Groq error' },
+        error: { message: (data.error && data.error.message) || ('Groq error ' + upstream.status) },
       });
     }
 

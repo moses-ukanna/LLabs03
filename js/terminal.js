@@ -330,23 +330,6 @@ const Clock = (() => {
   return { init };
 })();
 
-// ── Drawer Manager ─────────────────────────────────────────────────────
-const DrawerManager = (() => {
-  function open() {
-    document.getElementById('drawer').classList.add('open');
-    document.getElementById('drawer-overlay').classList.add('visible');
-  }
-  function close() {
-    document.getElementById('drawer').classList.remove('open');
-    document.getElementById('drawer-overlay').classList.remove('visible');
-  }
-  function init() {
-    document.getElementById('btn-drawer').addEventListener('click', open);
-    document.getElementById('btn-drawer-close').addEventListener('click', close);
-    document.getElementById('drawer-overlay').addEventListener('click', close);
-  }
-  return { init, close };
-})();
 
 // ── UI / Mode Manager ──────────────────────────────────────────────────
 const UI = (() => {
@@ -405,10 +388,9 @@ const UI = (() => {
   function applyMode(mode) {
     currentMode = mode;
     const cfg = MODES[mode] || MODES.terminal;
-    const sidebar = document.getElementById('sidebar'), split = document.getElementById('split-panel'), modeLbl = document.getElementById('hdr-mode');
+    const sidebar = document.getElementById('sidebar'), split = document.getElementById('split-panel');
     sidebar.classList.toggle('visible', cfg.sidebar);
     split.classList.toggle('visible', cfg.split);
-    modeLbl.textContent = cfg.label;
     document.querySelectorAll('.layout-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
     // Update hdr-mode label if present
     const modeLbl = document.getElementById('hdr-mode');
@@ -436,7 +418,6 @@ const UI = (() => {
   function bindEvents() {
     document.querySelectorAll('.layout-btn').forEach(btn => btn.addEventListener('click', () => {
       applyMode(btn.dataset.mode);
-      if (typeof DrawerManager !== 'undefined') DrawerManager.close();
     }));
     document.getElementById('btn-reset').addEventListener('click', () => {
       FileSystem.reset();
@@ -445,11 +426,9 @@ const UI = (() => {
       Terminal.print('Filesystem reset — all files cleared.', 'info');
       Terminal.print('');
       refreshTrees();
-      if (typeof DrawerManager !== 'undefined') DrawerManager.close();
     });
     document.getElementById('btn-clear').addEventListener('click', () => {
       Terminal.clear();
-      if (typeof DrawerManager !== 'undefined') DrawerManager.close();
     });
   }
 
@@ -462,10 +441,8 @@ const UI = (() => {
 // ── Bootstrap ──────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   Terminal.init(document.getElementById('output'), document.getElementById('input'), document.getElementById('prompt'));
-  Terminal.loadTerminal();
   ThemeManager.init();
   InputResizer.init();
   Clock.init();
-  DrawerManager.init();
   UI.init();
 });
