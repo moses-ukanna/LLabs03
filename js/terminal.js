@@ -236,19 +236,33 @@ const Terminal = (() => {
 // ── Theme Manager ──────────────────────────────────────────────────────
 const ThemeManager = (() => {
   const THEME_KEY = 'llabs03-theme';
+
   function apply(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    document.querySelectorAll('.theme-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.theme === theme));
-    const el = document.getElementById('hdr-theme');
-    if (el) el.textContent = theme.toUpperCase();
+    const icon  = document.getElementById('theme-icon');
+    const label = document.getElementById('theme-label');
+    const hdr   = document.getElementById('hdr-theme');
+    if (icon)  icon.textContent  = theme === 'dark' ? '🌙' : '☀️';
+    if (label) label.textContent = theme === 'dark' ? 'DARK' : 'LITE';
+    if (hdr)   hdr.textContent   = theme === 'dark' ? 'DARK' : 'LIGHT';
     try { localStorage.setItem(THEME_KEY, theme); } catch {}
   }
+
+  function toggle() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    apply(current === 'dark' ? 'light' : 'dark');
+  }
+
   function init() {
     let saved = 'dark';
     try { saved = localStorage.getItem(THEME_KEY) || 'dark'; } catch {}
+    // Only allow dark or light
+    if (saved !== 'light') saved = 'dark';
     apply(saved);
-    document.querySelectorAll('.theme-btn').forEach(btn => btn.addEventListener('click', () => apply(btn.dataset.theme)));
+    const btn = document.getElementById('btn-theme');
+    if (btn) btn.addEventListener('click', toggle);
   }
+
   return { init, apply };
 })();
 

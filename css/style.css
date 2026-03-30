@@ -35,34 +35,34 @@
 }
 
 [data-theme="light"] {
-  --accent:      #7c3aed;
-  --accent-dim:  #5b21b6;
-  --accent-glow: rgba(124,58,237,0.06);
-  --green:       #059669;
-  --cyan:        #0891b2;
-  --red:         #dc2626;
-  --amber:       #d97706;
+  --accent:      #6d28d9;
+  --accent-dim:  #4c1d95;
+  --accent-glow: rgba(109,40,217,0.08);
+  --green:       #047857;
+  --cyan:        #0369a1;
+  --red:         #b91c1c;
+  --amber:       #b45309;
 
-  --bg:          #f8f7f5;
-  --panel-bg:    #ffffff;
-  --panel-bg2:   rgba(255,255,255,0.97);
-  --border:      rgba(0,0,0,0.08);
-  --border-hi:   rgba(0,0,0,0.15);
+  --bg:          #f1f0ee;
+  --panel-bg:    #e8e6e3;
+  --panel-bg2:   rgba(232,230,227,0.97);
+  --border:      rgba(0,0,0,0.12);
+  --border-hi:   rgba(0,0,0,0.22);
 
-  --text:        #1e1b2e;
-  --text-dim:    #6b7280;
-  --text-faint:  #9ca3af;
+  --text:        #111827;
+  --text-dim:    #374151;
+  --text-faint:  #6b7280;
 
-  --prompt-user: #7c3aed;
-  --prompt-path: #5b21b6;
-  --prompt-sep:  #9ca3af;
+  --prompt-user: #6d28d9;
+  --prompt-path: #4c1d95;
+  --prompt-sep:  #6b7280;
 
-  --ls-dir:      #0891b2;
-  --ls-file:     #374151;
-  --ls-exe:      #059669;
+  --ls-dir:      #0369a1;
+  --ls-file:     #1f2937;
+  --ls-exe:      #047857;
 
-  --scrollbar:   rgba(0,0,0,0.10);
-  --selection-bg:#7c3aed;
+  --scrollbar:   rgba(0,0,0,0.15);
+  --selection-bg:#6d28d9;
   --selection-fg:#ffffff;
 }
 
@@ -806,12 +806,35 @@ body {
 
 /* ── light / skyblue theme overrides for Glio ─────────────── */
 [data-theme="light"] .glio-msg.user {
-  background: rgba(124,58,237,0.06);
-  border-color: rgba(124,58,237,0.15);
+  background: rgba(109,40,217,0.08);
+  border-color: rgba(109,40,217,0.20);
+  color: #3b0764;
+}
+[data-theme="light"] .glio-msg.assistant {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.12);
+  color: #111827;
+}
+[data-theme="light"] .glio-msg code {
+  background: rgba(109,40,217,0.10);
   color: #4c1d95;
 }
-[data-theme="light"] .glio-msg code { background: rgba(124,58,237,0.08); color: #5b21b6; }
-[data-theme="light"] .glio-msg pre { background: rgba(0,0,0,0.04); border-color: var(--border-hi); }
+[data-theme="light"] .glio-msg pre {
+  background: rgba(0,0,0,0.06);
+  border-color: rgba(0,0,0,0.15);
+}
+[data-theme="light"] .glio-msg strong { color: #111827; }
+[data-theme="light"] .glio-title { color: #111827; }
+[data-theme="light"] .glio-subtitle { color: #374151; }
+[data-theme="light"] .glio-input {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.18);
+  color: #111827;
+}
+[data-theme="light"] .rail-logo { color: #374151; }
+[data-theme="light"] .session-value { color: #374151; }
+[data-theme="light"] .header-mode-label { color: #6b7280; }
+[data-theme="light"] .logo { color: #1f2937; }
 [data-theme="skyblue"] .glio-msg.user {
   background: rgba(56,189,248,0.07);
   border-color: rgba(56,189,248,0.18);
