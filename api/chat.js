@@ -1,5 +1,5 @@
 const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
-const MODEL    = 'llama-3.1-8b-instant';
+const MODEL = 'llama-3.3-70b-versatile';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
