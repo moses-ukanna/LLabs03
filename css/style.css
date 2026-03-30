@@ -4,7 +4,7 @@
    Font: Geist Mono (terminal) + Geist (UI)
    ================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500;600&family=Geist:wght@300;400;500;600;700&family=Sora:wght@800&display=swap');
 
 /* ── CSS Variables ─────────────────────────────────────────── */
 :root {
@@ -124,17 +124,18 @@ html, body {
 }
 
 .topbar-hamburger {
-  width: 36px; height: 36px;
+  width: 44px; height: 36px;
   border-radius: var(--radius-sm);
   border: none;
   background: transparent;
-  color: var(--text-2);
+  color: var(--fedora-fg);
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background var(--transition), color var(--transition);
+  display: flex; align-items: center; justify-content: flex-start;
+  transition: background var(--transition), color var(--transition), opacity var(--transition);
   flex-shrink: 0;
+  margin-left: -8px;
 }
-.topbar-hamburger:hover { background: var(--accent-dim); color: var(--text); }
+.topbar-hamburger:hover { opacity: 0.7; }
 
 .topbar-btn {
   width: 36px; height: 36px;
@@ -151,15 +152,32 @@ html, body {
 .topbar-btn.active { background: var(--accent-dim); color: var(--text); }
 
 .topbar-logo {
-  font-family: var(--mono);
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 10px;
   flex: 1;
-  text-align: center;
 }
-.topbar-logo span { color: var(--text-3); font-weight: 300; }
+.topbar-logo-icon {
+  flex-shrink: 0;
+}
+.topbar-logo-text {
+  display: flex;
+  flex-direction: column;
+}
+.topbar-logo-name {
+  font-family: 'Sora', var(--sans);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--text);
+  line-height: 1;
+}
+.topbar-logo-bar {
+  height: 2.5px;
+  border-radius: 1px;
+  margin-top: 4px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
 
 .topbar-meta {
   display: flex;
@@ -211,7 +229,10 @@ html, body {
   padding: 12px 0 14px;
   gap: 4px;
   z-index: 10;
-  transition: width var(--transition), background var(--transition), border-color var(--transition), opacity var(--transition);
+  transition: width 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+              background var(--transition),
+              border-color var(--transition);
   overflow: hidden;
 }
 .icon-rail.collapsed {
@@ -220,6 +241,9 @@ html, body {
   border-right: none;
   opacity: 0;
   pointer-events: none;
+  transition: width 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+              padding 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .rail-group {
@@ -240,6 +264,40 @@ html, body {
 }
 
 .rail-spacer { flex: 1; }
+
+/* Rail footer */
+.rail-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 8px 4px 2px;
+  flex-shrink: 0;
+}
+.rail-footer-brand {
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
+  opacity: 0.6;
+}
+.rail-footer-by {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  opacity: 0.4;
+}
+
+/* Session timer in topbar */
+.topbar-session {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1px;
+  flex-shrink: 0;
+}
 
 .rail-btn {
   width: 40px;
@@ -271,19 +329,37 @@ html, body {
 .rail-btn svg { flex-shrink: 0; }
 
 /* Fedora bar-F button */
-.fedora-btn { color: var(--text-3); }
-.fedora-btn:hover,
-.fedora-btn.active { background: var(--pill-active-bg); color: var(--pill-active-fg); }
+.fedora-btn {
+  color: var(--fedora-fg);
+  background: transparent;
+  width: 48px;
+  height: 48px;
+  animation: fedora-glow 5s ease-in-out infinite;
+}
+.fedora-btn:hover { background: transparent; color: var(--fedora-fg); opacity: 0.8; }
+.fedora-btn.active { background: transparent; color: var(--fedora-fg); }
 .fedora-btn .fedora-icon rect { transition: fill var(--transition); }
+
+@keyframes fedora-glow {
+  0%, 65% { box-shadow: none; }
+  80% { box-shadow: 0 0 14px 4px var(--fedora-glow); }
+  100% { box-shadow: none; }
+}
 
 /* Pill accent vars */
 [data-theme="dark"] {
   --pill-active-bg: rgba(208,96,144,0.20);
   --pill-active-fg: #F090B8;
+  --fedora-bg: rgba(80,140,220,0.18);
+  --fedora-fg: #70B0F0;
+  --fedora-glow: rgba(80,140,220,0.45);
 }
 [data-theme="light"] {
   --pill-active-bg: rgba(106,46,120,0.14);
   --pill-active-fg: #6A2E78;
+  --fedora-bg: rgba(40,80,160,0.14);
+  --fedora-fg: #2858A8;
+  --fedora-glow: rgba(40,80,160,0.35);
 }
 
 /* ── Main Layout ───────────────────────────────────────────── */
@@ -303,16 +379,25 @@ html, body {
 
 /* ── Sidebar (explorer / reference) ───────────────────────── */
 .sidebar {
-  width: 220px;
+  width: 0;
   flex-shrink: 0;
   background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: none;
+  border-right: 1px solid transparent;
+  display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  transition: background var(--transition), border-color var(--transition);
+  overflow: hidden;
+  opacity: 0;
+  transition: width 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+              border-color 0.4s ease,
+              background var(--transition);
 }
-.sidebar.visible { display: flex; }
+.sidebar.visible {
+  width: 220px;
+  opacity: 1;
+  border-right-color: var(--border);
+  overflow-y: auto;
+}
 
 .sidebar-section { padding: 16px 14px; }
 .sidebar-title {
@@ -498,16 +583,26 @@ html, body {
 
 /* ── Split Panel ───────────────────────────────────────────── */
 .split-panel {
-  width: 220px;
+  width: 0;
   flex-shrink: 0;
   background: var(--surface);
-  border-left: 1px solid var(--border);
-  overflow-y: auto;
-  padding: 16px 14px;
-  display: none;
-  transition: background var(--transition), border-color var(--transition);
+  border-left: 1px solid transparent;
+  overflow: hidden;
+  padding: 0;
+  opacity: 0;
+  transition: width 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1),
+              padding 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              border-color 0.4s ease,
+              background var(--transition);
 }
-.split-panel.visible { display: block; }
+.split-panel.visible {
+  width: 220px;
+  opacity: 1;
+  padding: 16px 14px;
+  border-left-color: var(--border);
+  overflow-y: auto;
+}
 .split-panel-header {
   font-size: 9px;
   font-weight: 600;
@@ -539,10 +634,16 @@ html, body {
   flex-direction: column;
   z-index: 150;
   transform: translateX(100%);
-  transition: transform var(--transition), background var(--transition);
+  opacity: 0;
+  transition: transform 0.5s cubic-bezier(0.25, 0.8, 0.25, 1),
+              opacity 0.45s cubic-bezier(0.25, 0.8, 0.25, 1),
+              background var(--transition);
   box-shadow: var(--shadow);
 }
-.glio-panel.open { transform: translateX(0); }
+.glio-panel.open {
+  transform: translateX(0);
+  opacity: 1;
+}
 
 .glio-chat { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 
@@ -555,14 +656,12 @@ html, body {
   flex-shrink: 0;
 }
 .glio-avatar {
-  width: 32px; height: 32px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border-hi);
+  width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px;
-  color: var(--text-2);
   flex-shrink: 0;
-  background: var(--surface2);
+  color: var(--fedora-fg);
+  background: transparent;
+  border: none;
 }
 .glio-title {
   font-size: 14px;
@@ -573,7 +672,7 @@ html, body {
 .glio-title span { color: var(--text-3); font-weight: 300; font-size: 12px; }
 .glio-subtitle {
   font-size: 10px;
-  color: var(--text-3);
+  color: var(--text-2);
   margin-top: 3px;
 }
 .glio-clear-btn {
@@ -714,8 +813,8 @@ button:focus-visible { outline: 2px solid var(--text-3); outline-offset: 2px; }
 @media (max-width: 900px) {
   :root { --chat-w: 300px; }
   .topbar-meta { display: none; }
-  .split-panel { width: 180px; }
-  .sidebar { width: 200px; }
+  .split-panel.visible { width: 180px; }
+  .sidebar.visible { width: 200px; }
 }
 
 /* ── Responsive — Mobile ───────────────────────────────────── */
@@ -729,6 +828,8 @@ button:focus-visible { outline: 2px solid var(--text-3); outline-offset: 2px; }
 
   /* Hide hamburger on mobile — bottom bar is always visible */
   .topbar-hamburger { display: none; }
+  .rail-footer { display: none; }
+  .topbar-session { display: none; }
 
   /* Topbar adjustments */
   .topbar {

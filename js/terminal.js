@@ -264,15 +264,10 @@ const Terminal = (() => {
 const ThemeManager = (() => {
   const THEME_KEY = 'llabs03-theme';
 
-  const MOON_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 10A6 6 0 016 2.5a6 6 0 100 11 6 6 0 007.5-3.5z"/></svg>`;
-  const SUN_SVG  = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><line x1="8" y1="1" x2="8" y2="3"/><line x1="8" y1="13" x2="8" y2="15"/><line x1="1" y1="8" x2="3" y2="8"/><line x1="13" y1="8" x2="15" y2="8"/><line x1="3.5" y1="3.5" x2="5" y2="5"/><line x1="11" y1="11" x2="12.5" y2="12.5"/><line x1="12.5" y1="3.5" x2="11" y2="5"/><line x1="5" y1="11" x2="3.5" y2="12.5"/></svg>`;
+  const MOON_SVG = `<svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 11A7 7 0 017 3a7 7 0 100 14 7 7 0 008-6z"/></svg>`;
 
   function apply(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    const iconEl  = document.getElementById('theme-icon-svg');
-    const labelEl = document.getElementById('theme-label');
-    if (iconEl)  iconEl.outerHTML = `<span id="theme-icon-svg">${theme === 'dark' ? MOON_SVG : SUN_SVG}</span>`;
-    if (labelEl) labelEl.textContent = theme === 'dark' ? 'Dark Mode' : 'Light Mode';
     try { localStorage.setItem(THEME_KEY, theme); } catch {}
   }
 
@@ -315,18 +310,33 @@ const InputResizer = (() => {
   return { init };
 })();
 
-// ── Live Clock ─────────────────────────────────────────────────────────
-const Clock = (() => {
-  function init() {
-    const el = document.getElementById('rail-clock');
-    if (!el) return;
-    function tick() {
-      const now = new Date();
-      el.textContent = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-    }
-    tick();
-    setInterval(tick, 10000);
+// ── Session Timer ──────────────────────────────────────────────────────
+const SessionTimer = (() => {
+  let seconds = 0;
+  let el;
+
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function format() {
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+    if (h > 0) return pad(h) + ':' + pad(m) + ':' + pad(s);
+    return pad(m) + ':' + pad(s);
   }
+
+  function tick() {
+    seconds++;
+    if (el) el.textContent = format();
+  }
+
+  function init() {
+    el = document.getElementById('session-timer');
+    if (!el) return;
+    el.textContent = format();
+    setInterval(tick, 1000);
+  }
+
   return { init };
 })();
 
@@ -454,6 +464,6 @@ window.addEventListener('DOMContentLoaded', () => {
   Terminal.init(document.getElementById('output'), document.getElementById('input'), document.getElementById('prompt'));
   ThemeManager.init();
   InputResizer.init();
-  Clock.init();
+  SessionTimer.init();
   UI.init();
 });
