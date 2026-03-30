@@ -300,15 +300,7 @@ const Fedora = (() => {
     load();
 
     $('btn-glio').addEventListener('click', toggle);
-    $('glio-clear-btn').addEventListener('click', () => {
-      chatHistory = [];
-      terminalLog = [];
-      $('glio-messages').innerHTML = '';
-      try {
-        localStorage.removeItem('fedora-chat-history');
-        localStorage.removeItem('fedora-terminal-log');
-      } catch {}
-    });
+    $('glio-clear-btn').addEventListener('click', toggle);
     $('glio-send-btn').addEventListener('click', send);
     $('glio-input').addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }

@@ -417,7 +417,18 @@ const UI = (() => {
 
   function bindEvents() {
     document.querySelectorAll('.layout-btn').forEach(btn => btn.addEventListener('click', () => {
-      applyMode(btn.dataset.mode);
+      const mode = btn.dataset.mode;
+      // Terminal icon does nothing special — terminal is always visible
+      if (mode === 'terminal') {
+        applyMode('terminal');
+        return;
+      }
+      // Toggle: if already active, close it (back to terminal). Otherwise open it.
+      if (currentMode === mode) {
+        applyMode('terminal');
+      } else {
+        applyMode(mode);
+      }
     }));
     document.getElementById('btn-reset').addEventListener('click', () => {
       FileSystem.reset();
