@@ -9,6 +9,28 @@ const Terminal = (() => {
   let histIndex = -1, savedInput = '';
   let cmdCount = 0;
 
+  const STORAGE_KEY_CMDS  = 'llabs03-cmd-history';
+  const STORAGE_KEY_COUNT = 'llabs03-cmd-count';
+
+  function saveTerminal() {
+    try {
+      const h = Commands.getHistory ? Commands.getHistory() : [];
+      localStorage.setItem(STORAGE_KEY_CMDS,  JSON.stringify(h));
+      localStorage.setItem(STORAGE_KEY_COUNT, String(cmdCount));
+    } catch {}
+  }
+
+  function loadTerminal() {
+    try {
+      const count = localStorage.getItem(STORAGE_KEY_COUNT);
+      if (count) {
+        cmdCount = parseInt(count, 10) || 0;
+        const el = document.getElementById('rail-cmd-count');
+        if (el) el.textContent = cmdCount + ' CMD';
+      }
+    } catch {}
+  }
+
   function escHtml(s) {
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
@@ -62,6 +84,7 @@ const Terminal = (() => {
     cmdCount++;
     const el = document.getElementById('rail-cmd-count');
     if (el) el.textContent = `${cmdCount} CMD`;
+    saveTerminal();
   }
 
   // ── Pipeline ──────────────────────────────────────────────────────────
@@ -241,14 +264,15 @@ const Terminal = (() => {
 const ThemeManager = (() => {
   const THEME_KEY = 'llabs03-theme';
 
+  const MOON_SVG = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 10A6 6 0 016 2.5a6 6 0 100 11 6 6 0 007.5-3.5z"/></svg>`;
+  const SUN_SVG  = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="3"/><line x1="8" y1="1" x2="8" y2="3"/><line x1="8" y1="13" x2="8" y2="15"/><line x1="1" y1="8" x2="3" y2="8"/><line x1="13" y1="8" x2="15" y2="8"/><line x1="3.5" y1="3.5" x2="5" y2="5"/><line x1="11" y1="11" x2="12.5" y2="12.5"/><line x1="12.5" y1="3.5" x2="11" y2="5"/><line x1="5" y1="11" x2="3.5" y2="12.5"/></svg>`;
+
   function apply(theme) {
     document.documentElement.setAttribute('data-theme', theme);
-    const icon  = document.getElementById('theme-icon');
-    const label = document.getElementById('theme-label');
-    const hdr   = document.getElementById('hdr-theme');
-    if (icon)  icon.textContent  = theme === 'dark' ? '🌙' : '☀️';
-    if (label) label.textContent = theme === 'dark' ? 'DARK' : 'LITE';
-    if (hdr)   hdr.textContent   = theme === 'dark' ? 'DARK' : 'LIGHT';
+    const iconEl  = document.getElementById('theme-icon-svg');
+    const labelEl = document.getElementById('theme-label');
+    if (iconEl)  iconEl.outerHTML = `<span id="theme-icon-svg">${theme === 'dark' ? MOON_SVG : SUN_SVG}</span>`;
+    if (labelEl) labelEl.textContent = theme === 'dark' ? 'Dark Mode' : 'Light Mode';
     try { localStorage.setItem(THEME_KEY, theme); } catch {}
   }
 
@@ -260,7 +284,6 @@ const ThemeManager = (() => {
   function init() {
     let saved = 'dark';
     try { saved = localStorage.getItem(THEME_KEY) || 'dark'; } catch {}
-    // Only allow dark or light
     if (saved !== 'light') saved = 'dark';
     apply(saved);
     const btn = document.getElementById('btn-theme');
@@ -305,6 +328,24 @@ const Clock = (() => {
     setInterval(tick, 10000);
   }
   return { init };
+})();
+
+// ── Drawer Manager ─────────────────────────────────────────────────────
+const DrawerManager = (() => {
+  function open() {
+    document.getElementById('drawer').classList.add('open');
+    document.getElementById('drawer-overlay').classList.add('visible');
+  }
+  function close() {
+    document.getElementById('drawer').classList.remove('open');
+    document.getElementById('drawer-overlay').classList.remove('visible');
+  }
+  function init() {
+    document.getElementById('btn-drawer').addEventListener('click', open);
+    document.getElementById('btn-drawer-close').addEventListener('click', close);
+    document.getElementById('drawer-overlay').addEventListener('click', close);
+  }
+  return { init, close };
 })();
 
 // ── UI / Mode Manager ──────────────────────────────────────────────────
@@ -369,6 +410,9 @@ const UI = (() => {
     split.classList.toggle('visible', cfg.split);
     modeLbl.textContent = cfg.label;
     document.querySelectorAll('.layout-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
+    // Update hdr-mode label if present
+    const modeLbl = document.getElementById('hdr-mode');
+    if (modeLbl) modeLbl.textContent = cfg.label;
     sidebar.innerHTML = '';
     if (mode === 'explorer') {
       const sec = document.createElement('div'); sec.className = 'sidebar-section'; sec.innerHTML = '<div class="sidebar-title">// Filesystem</div>';
@@ -390,9 +434,23 @@ const UI = (() => {
   }
 
   function bindEvents() {
-    document.querySelectorAll('.layout-btn').forEach(btn => btn.addEventListener('click', () => applyMode(btn.dataset.mode)));
-    document.getElementById('btn-reset').addEventListener('click', () => { FileSystem.reset(); Terminal.updatePrompt(); Terminal.print(''); Terminal.print('Filesystem reset — all files cleared.', 'info'); Terminal.print(''); refreshTrees(); });
-    document.getElementById('btn-clear').addEventListener('click', () => Terminal.clear());
+    document.querySelectorAll('.layout-btn').forEach(btn => btn.addEventListener('click', () => {
+      applyMode(btn.dataset.mode);
+      if (typeof DrawerManager !== 'undefined') DrawerManager.close();
+    }));
+    document.getElementById('btn-reset').addEventListener('click', () => {
+      FileSystem.reset();
+      Terminal.updatePrompt();
+      Terminal.print('');
+      Terminal.print('Filesystem reset — all files cleared.', 'info');
+      Terminal.print('');
+      refreshTrees();
+      if (typeof DrawerManager !== 'undefined') DrawerManager.close();
+    });
+    document.getElementById('btn-clear').addEventListener('click', () => {
+      Terminal.clear();
+      if (typeof DrawerManager !== 'undefined') DrawerManager.close();
+    });
   }
 
   return {
@@ -404,8 +462,10 @@ const UI = (() => {
 // ── Bootstrap ──────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   Terminal.init(document.getElementById('output'), document.getElementById('input'), document.getElementById('prompt'));
+  Terminal.loadTerminal();
   ThemeManager.init();
   InputResizer.init();
   Clock.init();
+  DrawerManager.init();
   UI.init();
 });

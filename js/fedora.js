@@ -16,12 +16,34 @@ const Fedora = (() => {
   let terminalLog    = []; // full log of {cmd, output, isError}
   let lastErrorTimer = null;
 
+  const STORAGE_KEY_CHAT = 'fedora-chat-history';
+  const STORAGE_KEY_LOG  = 'fedora-terminal-log';
+
+  // ── Persist to localStorage ────────────────────────────────
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY_CHAT, JSON.stringify(chatHistory));
+      localStorage.setItem(STORAGE_KEY_LOG,  JSON.stringify(terminalLog));
+    } catch {}
+  }
+
+  // ── Load from localStorage ─────────────────────────────────
+  function load() {
+    try {
+      const chat = localStorage.getItem(STORAGE_KEY_CHAT);
+      const log  = localStorage.getItem(STORAGE_KEY_LOG);
+      if (chat) chatHistory = JSON.parse(chat);
+      if (log)  terminalLog = JSON.parse(log);
+    } catch {}
+  }
+
   const $ = id => document.getElementById(id);
 
   // ── Called by terminal.js after every command ──────────────
   function onCommand(cmd, output, isError) {
     terminalLog.push({ cmd, output: output || '', isError: !!isError });
     if (terminalLog.length > 40) terminalLog = terminalLog.slice(-40);
+    save();
 
     if (isError) {
       // Small delay so terminal output renders first
@@ -80,6 +102,7 @@ const Fedora = (() => {
         bubble('assistant', md(reply));
         chatHistory.push({ role: 'assistant', content: reply });
         if (chatHistory.length > MAX_MSGS) chatHistory = chatHistory.slice(-MAX_MSGS);
+        save();
       }
     } catch (e) {
       typing(false);
@@ -245,6 +268,7 @@ const Fedora = (() => {
       bubble('assistant', md(reply));
       chatHistory.push({ role: 'assistant', content: reply });
       if (chatHistory.length > MAX_MSGS) chatHistory = chatHistory.slice(-MAX_MSGS);
+      save();
 
     } catch (e) {
       typing(false);
@@ -272,10 +296,18 @@ const Fedora = (() => {
 
   // ── Init ───────────────────────────────────────────────────
   function init() {
+    // Load persisted state
+    load();
+
     $('btn-glio').addEventListener('click', toggle);
     $('glio-clear-btn').addEventListener('click', () => {
       chatHistory = [];
+      terminalLog = [];
       $('glio-messages').innerHTML = '';
+      try {
+        localStorage.removeItem('fedora-chat-history');
+        localStorage.removeItem('fedora-terminal-log');
+      } catch {}
     });
     $('glio-send-btn').addEventListener('click', send);
     $('glio-input').addEventListener('keydown', e => {
