@@ -1,6 +1,8 @@
 /**
  * fedora.js — Fedora
  * Friendly, warm, general-purpose AI assistant for Llabs03.
+ * - Knows full terminal history and output at all times
+ * - Automatically jumps in when a command returns an error
  * Powered by Groq (llama-3.1-8b-instant) via server proxy.
  */
 
@@ -9,12 +11,85 @@ const Fedora = (() => {
   const MAX_TOKENS = 1024;
   const MAX_MSGS   = 40;
 
-  let chatHistory = [];
-  let busy        = false;
+  let chatHistory    = [];
+  let busy           = false;
+  let terminalLog    = []; // full log of {cmd, output, isError}
+  let lastErrorTimer = null;
 
   const $ = id => document.getElementById(id);
 
-  // ── Terminal context ───────────────────────────────────────
+  // ── Called by terminal.js after every command ──────────────
+  function onCommand(cmd, output, isError) {
+    terminalLog.push({ cmd, output: output || '', isError: !!isError });
+    if (terminalLog.length > 40) terminalLog = terminalLog.slice(-40);
+
+    if (isError) {
+      // Small delay so terminal output renders first
+      clearTimeout(lastErrorTimer);
+      lastErrorTimer = setTimeout(() => {
+        autoHelp(cmd, output);
+      }, 600);
+    }
+  }
+
+  // ── Auto open panel and offer help on error ────────────────
+  async function autoHelp(cmd, errorOutput) {
+    if (busy) return;
+
+    // Open panel if not already open
+    const panel = $('glio-panel');
+    if (!panel.classList.contains('open')) {
+      panel.classList.add('open');
+      $('btn-glio').classList.add('active');
+    }
+
+    const prompt = `The user just ran this command in the terminal:\n\`${cmd}\`\n\nIt returned this error:\n${errorOutput}\n\nBriefly explain what went wrong and how to fix it. Be friendly and concise.`;
+
+    bubble('assistant', md('💡 Looks like that command hit an error — let me help...'));
+
+    chatHistory.push({ role: 'user', content: prompt });
+    if (chatHistory.length > MAX_MSGS) chatHistory = chatHistory.slice(-MAX_MSGS);
+
+    busy = true;
+    typing(true);
+
+    try {
+      const res = await fetch(ENDPOINT, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          max_tokens: MAX_TOKENS,
+          system:     systemPrompt(),
+          messages:   chatHistory,
+        }),
+      });
+
+      typing(false);
+
+      const raw = await res.text();
+      let data;
+      try { data = raw ? JSON.parse(raw) : null; } catch { return; }
+      if (!res.ok || !data) return;
+
+      const reply = (data.content || [])
+        .filter(b => b.type === 'text')
+        .map(b => b.text)
+        .join('');
+
+      if (reply) {
+        bubble('assistant', md(reply));
+        chatHistory.push({ role: 'assistant', content: reply });
+        if (chatHistory.length > MAX_MSGS) chatHistory = chatHistory.slice(-MAX_MSGS);
+      }
+    } catch (e) {
+      typing(false);
+    } finally {
+      busy = false;
+      $('glio-send-btn').disabled = false;
+    }
+  }
+
+  // ── Terminal context snapshot ──────────────────────────────
   function terminalContext() {
     const parts = [];
     try {
@@ -22,12 +97,18 @@ const Fedora = (() => {
         const cwd = FileSystem.getCwd(), home = '/home/user';
         parts.push('CWD: ' + (cwd.startsWith(home) ? '~' + cwd.slice(home.length) : cwd));
       }
-      if (typeof Commands !== 'undefined' && Commands.getHistory) {
-        const h = Commands.getHistory().slice(-8);
-        if (h.length) parts.push('Recent commands:\n  ' + h.join('\n  '));
-      }
     } catch {}
-    return parts.join('\n');
+
+    // Last 12 commands with their output
+    if (terminalLog.length) {
+      const recent = terminalLog.slice(-12);
+      const lines = recent.map(e =>
+        `$ ${e.cmd}${e.output ? '\n  ' + e.output.slice(0, 200) : ''}${e.isError ? ' [ERROR]' : ''}`
+      );
+      parts.push('Terminal history:\n' + lines.join('\n'));
+    }
+
+    return parts.join('\n\n');
   }
 
   // ── System prompt ──────────────────────────────────────────
@@ -51,6 +132,9 @@ const Fedora = (() => {
       '  - Arts, music, literature, film, culture, sports',
       '  - Everyday life — cooking, travel, relationships, health, finance',
       '  - Creative writing, brainstorming, problem solving',
+      '',
+      'You can see the user\'s full terminal session including every command they',
+      'have run and the output. Use this context to give relevant, accurate help.',
       '',
       'How you respond:',
       '  - Keep responses conversational and natural.',
@@ -199,16 +283,15 @@ const Fedora = (() => {
     });
     $('glio-input').addEventListener('input', () => grow($('glio-input')));
 
-    // Welcome message
     bubble('assistant', md(
       'Hey there! 👋 I\'m **Fedora**, your friendly assistant.\n\n' +
-      'I\'m here to help with pretty much anything — whether that\'s coding, ' +
-      'answering questions, brainstorming ideas, explaining concepts, or just having a chat.\n\n' +
+      'I can see everything you type in the terminal and I\'ll jump in automatically if something goes wrong. ' +
+      'You can also ask me anything anytime.\n\n' +
       'What\'s on your mind?'
     ));
   }
 
-  return { init };
+  return { init, onCommand };
 })();
 
 document.addEventListener('DOMContentLoaded', () => Fedora.init());

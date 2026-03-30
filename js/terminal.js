@@ -125,6 +125,10 @@ const Terminal = (() => {
       } else {
         if (res.colorNames) print(res.colorNames, 'ls-output');
         else if (res.output != null && res.output !== '') print(res.output, res.isError ? 'error' : 'normal');
+        // Notify Fedora of command result
+        if (isLast && typeof Fedora !== 'undefined' && Fedora.onCommand) {
+          try { Fedora.onCommand(segs[i].trim(), res.output || '', !!res.isError); } catch {}
+        }
       }
     }
   }
