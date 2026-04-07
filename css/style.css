@@ -265,29 +265,31 @@ html, body {
 
 .rail-spacer { flex: 1; }
 
-/* Rail footer */
-.rail-footer {
+/* App footer — centered at bottom */
+.app-footer {
+  position: fixed;
+  left: 0; right: 0; bottom: 0;
+  height: 24px;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 1px;
-  padding: 8px 4px 2px;
-  flex-shrink: 0;
+  justify-content: center;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  z-index: 90;
+  padding-bottom: env(safe-area-inset-bottom, 0);
 }
-.rail-footer-brand {
+.app-footer-text {
   font-family: var(--mono);
-  font-size: 8px;
+  font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-3);
-  opacity: 0.6;
+  letter-spacing: 0.12em;
+  color: var(--text-2);
+  text-transform: uppercase;
 }
-.rail-footer-by {
-  font-family: var(--mono);
-  font-size: 7px;
-  letter-spacing: 0.06em;
+.app-footer-by {
   color: var(--text-3);
-  opacity: 0.4;
+  font-weight: 400;
+  margin-left: 4px;
 }
 
 /* Session timer in topbar */
@@ -368,6 +370,7 @@ html, body {
   flex-direction: row;
   height: 100%;
   padding-top: var(--topbar-h);
+  padding-bottom: 24px;
 }
 
 .main {
@@ -626,7 +629,7 @@ html, body {
   position: fixed;
   top: var(--topbar-h);
   right: 0;
-  bottom: 0;
+  bottom: 24px;
   width: var(--chat-w);
   background: var(--surface);
   border-left: 1px solid var(--border);
@@ -828,8 +831,17 @@ button:focus-visible { outline: 2px solid var(--text-3); outline-offset: 2px; }
 
   /* Hide hamburger on mobile — bottom bar is always visible */
   .topbar-hamburger { display: none; }
-  .rail-footer { display: none; }
   .topbar-session { display: none; }
+
+  /* App footer sits above the bottom bar on mobile */
+  .app-footer {
+    bottom: calc(var(--bottombar-h) + env(safe-area-inset-bottom, 0));
+    padding-bottom: 0;
+  }
+
+  .app {
+    padding-bottom: calc(24px + var(--bottombar-h) + env(safe-area-inset-bottom, 0));
+  }
 
   /* Topbar adjustments */
   .topbar {
@@ -887,11 +899,6 @@ button:focus-visible { outline: 2px solid var(--text-3); outline-offset: 2px; }
     height: 42px;
   }
 
-  /* App layout — make room for bottom bar */
-  .app {
-    padding-bottom: calc(var(--bottombar-h) + env(safe-area-inset-bottom, 0));
-  }
-
   /* Terminal */
   .terminal-output { padding: 12px 14px 6px; }
   .output-line { font-size: 12px; }
@@ -904,7 +911,7 @@ button:focus-visible { outline: 2px solid var(--text-3); outline-offset: 2px; }
     position: fixed;
     top: var(--topbar-h);
     left: 0; right: 0;
-    bottom: calc(var(--bottombar-h) + env(safe-area-inset-bottom, 0));
+    bottom: calc(24px + var(--bottombar-h) + env(safe-area-inset-bottom, 0));
     width: 100%;
     z-index: 50;
     background: var(--surface);
@@ -916,7 +923,7 @@ button:focus-visible { outline: 2px solid var(--text-3); outline-offset: 2px; }
   /* Fedora chat panel — full overlay on mobile */
   .glio-panel {
     top: var(--topbar-h);
-    bottom: calc(var(--bottombar-h) + env(safe-area-inset-bottom, 0));
+    bottom: calc(24px + var(--bottombar-h) + env(safe-area-inset-bottom, 0));
     width: 100vw;
     border-left: none;
   }
